@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Anime Recommendation System</h1>
+            <p>Discover your next favorite anime</p>
+        </header>
+
+        <main>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="anime">By Anime</button>
+                <button class="tab-button" data-tab="features">By Features</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Anime-based recommendations -->
+                <div id="anime-tab" class="tab-pane active">
+                    <h2>Find Similar Anime</h2>
+                    <div class="form-group">
+                        <label for="anime-title">Enter an anime you like:</label>
+                        <input type="text" id="anime-title" placeholder="e.g., Cowboy Bebop">
+                        <div id="anime-suggestions" class="suggestions"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="anime-num-recs">Number of recommendations:</label>
+                        <input type="number" id="anime-num-recs" min="1" max="50" value="10">
+                    </div>
+                    <button id="anime-recommend-btn" class="recommend-btn">Get Recommendations</button>
+                </div>
+
+                <!-- Feature-based recommendations -->
+                <div id="features-tab" class="tab-pane">
+                    <h2>Find Anime by Features</h2>
+                    <div class="form-group">
+                        <label for="genres">Genres (comma-separated):</label>
+                        <input type="text" id="genres" placeholder="e.g., action, comedy, drama">
+                    </div>
+                    <div class="form-group">
+                        <label for="themes">Themes (comma-separated):</label>
+                        <input type="text" id="themes" placeholder="e.g., school, space, romance">
+                    </div>
+                    <div class="form-group">
+                        <label for="demographics">Demographic:</label>
+                        <select id="demographics">
+                            <option value="">Select a demographic</option>
+                            <option value="shounen">Shounen</option>
+                            <option value="shoujo">Shoujo</option>
+                            <option value="seinen">Seinen</option>
+                            <option value="josei">Josei</option>
+                            <option value="kids">Kids</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="features-num-recs">Number of recommendations:</label>
+                        <input type="number" id="features-num-recs" min="1" max="50" value="10">
+                    </div>
+                    <button id="features-recommend-btn" class="recommend-btn">Get Recommendations</button>
+                </div>
+            </div>
+
+            <div id="results" class="results">
+                <h2>Recommendations</h2>
+                <div id="recommendations-list"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Anime Recommendation System &copy; 2025</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
