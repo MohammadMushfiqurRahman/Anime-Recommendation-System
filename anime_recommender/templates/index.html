@@ -1,81 +1,228 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&family=Spline+Sans%3Awght%40400%3B500%3B700"
+    />
+
     <title>Anime Recommendation System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Anime Recommendation System</h1>
-            <p>Discover your next favorite anime</p>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body>
+    <div class="relative flex size-full min-h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden" style='font-family: "Spline Sans", "Noto Sans", sans-serif;'>
+      <div class="layout-container flex h-full grow flex-col">
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#283039] px-10 py-3">
+          <div class="flex items-center gap-8">
+            <div class="flex items-center gap-4 text-white">
+              <div class="size-4">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_6_319)">
+                    <path
+                      d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
+                      fill="currentColor"
+                    ></path>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_6_319"><rect width="48" height="48" fill="white"></rect></clipPath>
+                  </defs>
+                </svg>
+              </div>
+              <h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Animax</h2>
+            </div>
+            <div class="flex items-center gap-9">
+              <a class="text-white text-sm font-medium leading-normal" href="#" id="home-link">Home</a>
+              <a class="text-white text-sm font-medium leading-normal" href="#" id="browse-link">Browse</a>
+              <a class="text-white text-sm font-medium leading-normal" href="#" id="recommendations-link">Recommendations</a>
+            </div>
+          </div>
+          <div class="flex flex-1 justify-end gap-8">
+            <label class="flex flex-col min-w-40 !h-10 max-w-64">
+              <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                <div
+                  class="text-[#9cabba] flex border-none bg-[#283039] items-center justify-center pl-4 rounded-l-lg border-r-0"
+                  data-icon="MagnifyingGlass"
+                  data-size="24px"
+                  data-weight="regular"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                    <path
+                      d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"
+                    ></path>
+                  </svg>
+                </div>
+                <input
+                  placeholder="Search"
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#283039] focus:border-none h-full placeholder:text-[#9cabba] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                  id="search-input"
+                />
+              </div>
+            </label>
+            <button
+              class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#283039] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+            >
+              <div class="text-white" data-icon="Bell" data-size="20px" data-weight="regular">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                  <path
+                    d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"
+                  ></path>
+                </svg>
+              </div>
+            </button>
+            <div
+              class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBObpm0YXOltE5mWzqav6aP1PLb9Gm9NTDmrGvFIr-a8cxsP_3byvOInYZ-nL6nMUpwjb63-a1EUTNBDJaEP1pwLqV-vvVBSiyJ8PzoYR1FeVsNcikBc_AMHTej6pF1tu_SonptePbQOGKrTorKRWK3kZ2D7ENuRa29o2zSvQgk79eK0n8XxdbcVmWhDuJOul472vjhXN_Jbg_1f0udfKtDhPtuLrq2wek_Gk0qRbceqeftK0vpg47DikokY8OW7PFvUmvkmwv4PGJb");'
+            ></div>
+          </div>
         </header>
-
-        <main>
-            <div class="tabs">
-                <button class="tab-button active" data-tab="anime">By Anime</button>
-                <button class="tab-button" data-tab="features">By Features</button>
-            </div>
-
-            <div class="tab-content">
-                <!-- Anime-based recommendations -->
-                <div id="anime-tab" class="tab-pane active">
-                    <h2>Find Similar Anime</h2>
-                    <div class="form-group">
-                        <label for="anime-title">Enter an anime you like:</label>
-                        <input type="text" id="anime-title" placeholder="e.g., Cowboy Bebop">
-                        <div id="anime-suggestions" class="suggestions"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="anime-num-recs">Number of recommendations:</label>
-                        <input type="number" id="anime-num-recs" min="1" max="50" value="10">
-                    </div>
-                    <button id="anime-recommend-btn" class="recommend-btn">Get Recommendations</button>
+        <div class="px-40 flex flex-1 justify-center py-5">
+          <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+            <div class="px-4 py-3">
+              <label class="flex flex-col min-w-40 h-12 w-full">
+                <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                  <div
+                    class="text-[#9cabba] flex border-none bg-[#283039] items-center justify-center pl-4 rounded-l-lg border-r-0"
+                    data-icon="MagnifyingGlass"
+                    data-size="24px"
+                    data-weight="regular"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                      <path
+                        d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <input
+                    placeholder="Search for anime"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#283039] focus:border-none h-full placeholder:text-[#9cabba] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                    id="anime-search-input"
+                  />
                 </div>
-
-                <!-- Feature-based recommendations -->
-                <div id="features-tab" class="tab-pane">
-                    <h2>Find Anime by Features</h2>
-                    <div class="form-group">
-                        <label for="genres">Genres (comma-separated):</label>
-                        <input type="text" id="genres" placeholder="e.g., action, comedy, drama">
-                    </div>
-                    <div class="form-group">
-                        <label for="themes">Themes (comma-separated):</label>
-                        <input type="text" id="themes" placeholder="e.g., school, space, romance">
-                    </div>
-                    <div class="form-group">
-                        <label for="demographics">Demographic:</label>
-                        <select id="demographics">
-                            <option value="">Select a demographic</option>
-                            <option value="shounen">Shounen</option>
-                            <option value="shoujo">Shoujo</option>
-                            <option value="seinen">Seinen</option>
-                            <option value="josei">Josei</option>
-                            <option value="kids">Kids</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="features-num-recs">Number of recommendations:</label>
-                        <input type="number" id="features-num-recs" min="1" max="50" value="10">
-                    </div>
-                    <button id="features-recommend-btn" class="recommend-btn">Get Recommendations</button>
-                </div>
+              </label>
             </div>
-
-            <div id="results" class="results">
-                <h2>Recommendations</h2>
-                <div id="recommendations-list"></div>
+            <div class="flex gap-3 p-3 overflow-x-hidden">
+              <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-4">
+                <p class="text-white text-sm font-medium leading-normal">All</p>
+              </div>
+              <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-4">
+                <p class="text-white text-sm font-medium leading-normal">Action</p>
+              </div>
+              <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-4">
+                <p class="text-white text-sm font-medium leading-normal">Comedy</p>
+              </div>
+              <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-4">
+                <p class="text-white text-sm font-medium leading-normal">Drama</p>
+              </div>
             </div>
-        </main>
-
-        <footer>
-            <p>Anime Recommendation System &copy; 2025</p>
-        </footer>
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4" id="recommendations-container">
+              <!-- Recommendations will be dynamically inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+    
+    <script>
+      // Simple JavaScript for the UI
+      document.addEventListener('DOMContentLoaded', function() {
+        // Anime search functionality
+        const animeSearchInput = document.getElementById('anime-search-input');
+        const searchInput = document.getElementById('search-input');
+        
+        // Set up event listeners for search inputs
+        animeSearchInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            searchAnime(this.value);
+          }
+        });
+        
+        searchInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            searchAnime(this.value);
+          }
+        });
+        
+        // Set up navigation links
+        document.getElementById('home-link').addEventListener('click', function(e) {
+          e.preventDefault();
+          // In a full implementation, this would navigate to the home page
+        });
+        
+        document.getElementById('browse-link').addEventListener('click', function(e) {
+          e.preventDefault();
+          // In a full implementation, this would navigate to the browse page
+        });
+        
+        document.getElementById('recommendations-link').addEventListener('click', function(e) {
+          e.preventDefault();
+          // In a full implementation, this would navigate to the recommendations page
+        });
+        
+        // Function to search for anime (would connect to backend in a full implementation)
+        function searchAnime(query) {
+          if (query.trim() === '') return;
+          
+          // In a full implementation, this would make an API call to get recommendations
+          // For now, we'll just show a sample of anime
+          displaySampleRecommendations(query);
+        }
+        
+        // Function to display sample recommendations
+        function displaySampleRecommendations(query) {
+          const container = document.getElementById('recommendations-container');
+          container.innerHTML = `
+            <div class="col-span-full py-4">
+              <h2 class="text-white text-xl font-bold">Recommendations for "${query}"</h2>
+              <p class="text-[#9cabba]">These are sample recommendations. In a full implementation, these would be personalized.</p>
+            </div>
+            <div class="flex flex-col gap-3 pb-3">
+              <div
+                class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg"
+                style='background-image: url("https://cdn.myanimelist.net/images/anime/1/7.jpg");'
+              ></div>
+              <div>
+                <p class="text-white text-base font-medium leading-normal">Cowboy Bebop</p>
+                <p class="text-[#9cabba] text-sm font-normal leading-normal">Action, Adventure</p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3 pb-3">
+              <div
+                class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg"
+                style='background-image: url("https://cdn.myanimelist.net/images/anime/1/7.jpg");'
+              ></div>
+              <div>
+                <p class="text-white text-base font-medium leading-normal">Cowboy Bebop: The Movie</p>
+                <p class="text-[#9cabba] text-sm font-normal leading-normal">Action, Drama</p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3 pb-3">
+              <div
+                class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg"
+                style='background-image: url("https://cdn.myanimelist.net/images/anime/1/7.jpg");'
+              ></div>
+              <div>
+                <p class="text-white text-base font-medium leading-normal">Trigun</p>
+                <p class="text-[#9cabba] text-sm font-normal leading-normal">Action, Sci-Fi</p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3 pb-3">
+              <div
+                class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg"
+                style='background-image: url("https://cdn.myanimelist.net/images/anime/1/7.jpg");'
+              ></div>
+              <div>
+                <p class="text-white text-base font-medium leading-normal">Witch Hunter Robin</p>
+                <p class="text-[#9cabba] text-sm font-normal leading-normal">Action, Mystery</p>
+              </div>
+            </div>
+          `;
+        }
+      });
+    </script>
+  </body>
 </html>
