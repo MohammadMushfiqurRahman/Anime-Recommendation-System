@@ -15,17 +15,11 @@ class AnimeRecommender:
         # Create indices for fast lookup
         self.indices = pd.Series(self.df.index, index=self.df['title']).drop_duplicates()
         
-        # Create the similarity matrix
-        print("Creating similarity matrix...")
-        self.cosine_sim = self._create_similarity_matrix()
+        # Initialize TF-IDF vectorizer
+        print("Initializing TF-IDF vectorizer...")
+        self.tfidf = TfidfVectorizer(stop_words='english', max_features=10000)
+        self.tfidf_matrix = self.tfidf.fit_transform(self.df['combined_features'])
         print("Recommender system initialized!")
-    
-    def _create_similarity_matrix(self):
-        """Create a cosine similarity matrix based on combined features"""
-        tfidf = TfidfVectorizer(stop_words='english', max_features=10000)
-        tfidf_matrix = tfidf.fit_transform(self.df['combined_features'])
-        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-        return cosine_sim
     
     def get_recommendations(self, title, num_recommendations=10):
         """Get anime recommendations based on title"""
@@ -46,20 +40,21 @@ class AnimeRecommender:
         idx = self.indices[title]
         
         # Get the pairwise similarity scores of all anime with that anime
-        sim_scores = list(enumerate(self.cosine_sim[idx]))
+        sim_scores = cosine_similarity(self.tfidf_matrix[idx], self.tfidf_matrix).flatten()
         
         # Sort the anime based on the similarity scores
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+        sim_scores_indices = sim_scores.argsort()[::-1]
         
         # Get the scores of the most similar anime (excluding the anime itself)
-        sim_scores = sim_scores[1:num_recommendations+1]
+        sim_scores_indices = sim_scores_indices[1:num_recommendations+1]
+        sim_scores = sim_scores[sim_scores_indices]
         
         # Get the anime indices
-        anime_indices = [i[0] for i in sim_scores]
+        anime_indices = sim_scores_indices
         
         # Return the top most similar anime
         recommendations = self.df[['title', 'genres', 'themes', 'demographics']].iloc[anime_indices].copy()
-        recommendations['similarity_score'] = [i[1] for i in sim_scores]
+        recommendations['similarity_score'] = sim_scores
         
         return recommendations.reset_index(drop=True)
     
@@ -78,22 +73,19 @@ class AnimeRecommender:
             print("Please provide at least one feature (genres, themes, or demographics)")
             return pd.DataFrame()
         
-        # Create a temporary TF-IDF vector for the filter string
-        tfidf = TfidfVectorizer(stop_words='english', max_features=10000)
-        tfidf_matrix = tfidf.fit_transform(self.df['combined_features'])
-        
         # Transform the filter string
-        filter_vector = tfidf.transform([filter_string])
+        filter_vector = self.tfidf.transform([filter_string])
         
         # Calculate similarity scores
-        sim_scores = cosine_similarity(filter_vector, tfidf_matrix).flatten()
+        sim_scores = cosine_similarity(filter_vector, self.tfidf_matrix).flatten()
         
         # Get indices of top recommendations
         top_indices = sim_scores.argsort()[::-1][:num_recommendations]
+        top_scores = sim_scores[top_indices]
         
         # Return recommendations
         recommendations = self.df[['title', 'genres', 'themes', 'demographics']].iloc[top_indices].copy()
-        recommendations['similarity_score'] = sim_scores[top_indices]
+        recommendations['similarity_score'] = top_scores
         
         return recommendations.reset_index(drop=True)
 
