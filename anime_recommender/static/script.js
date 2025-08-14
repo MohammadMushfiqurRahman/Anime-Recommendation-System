@@ -1,225 +1,123 @@
-// Tab switching functionality
+// Simple JavaScript for the UI
 document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const tabId = this.getAttribute('data-tab');
-            
-            // Remove active class from all buttons and panes
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-            
-            // Add active class to clicked button and corresponding pane
-            this.classList.add('active');
-            document.getElementById(`${tabId}-tab`).classList.add('active');
-        });
-    });
-    
-    // Anime recommendation button
-    document.getElementById('anime-recommend-btn').addEventListener('click', getAnimeRecommendations);
-    
-    // Features recommendation button
-    document.getElementById('features-recommend-btn').addEventListener('click', getFeatureRecommendations);
-    
-    // Anime title input with suggestions
-    const animeTitleInput = document.getElementById('anime-title');
-    animeTitleInput.addEventListener('input', showAnimeSuggestions);
-    
-    // Load anime titles for suggestions
-    loadAnimeTitles();
-});
-
-// Global variable to store anime titles
-let animeTitles = [];
-
-// Load anime titles for autocomplete suggestions
-async function loadAnimeTitles() {
-    try {
-        const response = await fetch('/anime_list');
-        const data = await response.json();
-        animeTitles = data.anime_titles || [];
-    } catch (error) {
-        console.error('Error loading anime titles:', error);
+  // Anime search functionality
+  const animeSearchInput = document.getElementById('anime-search-input');
+  const searchInput = document.getElementById('search-input');
+  
+  // Set up event listeners for search inputs
+  animeSearchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      searchAnime(this.value);
     }
-}
-
-// Show anime title suggestions
-function showAnimeSuggestions() {
-    const input = this.value.toLowerCase();
-    const suggestionsContainer = document.getElementById('anime-suggestions');
-    
-    // Clear previous suggestions
-    suggestionsContainer.innerHTML = '';
-    
-    if (input.length < 2) {
-        suggestionsContainer.style.display = 'none';
-        return;
+  });
+  
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      searchAnime(this.value);
     }
-    
-    // Filter titles based on input
-    const filteredTitles = animeTitles.filter(title => 
-        title.toLowerCase().includes(input)
-    ).slice(0, 10); // Limit to 10 suggestions
-    
-    if (filteredTitles.length > 0) {
-        suggestionsContainer.style.display = 'block';
-        
-        filteredTitles.forEach(title => {
-            const suggestionItem = document.createElement('div');
-            suggestionItem.className = 'suggestion-item';
-            suggestionItem.textContent = title;
-            suggestionItem.addEventListener('click', function() {
-                document.getElementById('anime-title').value = title;
-                suggestionsContainer.style.display = 'none';
-            });
-            suggestionsContainer.appendChild(suggestionItem);
-        });
-    } else {
-        suggestionsContainer.style.display = 'none';
-    }
-}
-
-// Get anime-based recommendations
-async function getAnimeRecommendations() {
-    const animeTitle = document.getElementById('anime-title').value.trim();
-    const numRecommendations = document.getElementById('anime-num-recs').value;
-    
-    if (!animeTitle) {
-        alert('Please enter an anime title');
-        return;
-    }
+  });
+  
+  // Set up navigation links
+  document.getElementById('home-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    // In a full implementation, this would navigate to the home page
+  });
+  
+  document.getElementById('browse-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    // In a full implementation, this would navigate to the browse page
+  });
+  
+  document.getElementById('recommendations-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    // In a full implementation, this would navigate to the recommendations page
+  });
+  
+  // Function to search for anime (would connect to backend in a full implementation)
+  function searchAnime(query) {
+    if (query.trim() === '') return;
     
     // Show loading indicator
-    showLoading();
-    
-    try {
-        const response = await fetch('/recommend', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                type: 'anime',
-                anime_title: animeTitle,
-                num_recommendations: parseInt(numRecommendations)
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            displayRecommendations(data.recommendations);
-        } else {
-            showError(data.error || 'An error occurred');
-        }
-    } catch (error) {
-        showError('Network error: ' + error.message);
-    }
-}
-
-// Get feature-based recommendations
-async function getFeatureRecommendations() {
-    const genres = document.getElementById('genres').value.trim();
-    const themes = document.getElementById('themes').value.trim();
-    const demographics = document.getElementById('demographics').value;
-    const numRecommendations = document.getElementById('features-num-recs').value;
-    
-    // Convert comma-separated strings to arrays
-    const genresArray = genres ? genres.split(',').map(item => item.trim()).filter(item => item) : [];
-    const themesArray = themes ? themes.split(',').map(item => item.trim()).filter(item => item) : [];
-    const demographicsArray = demographics ? [demographics] : [];
-    
-    // Show loading indicator
-    showLoading();
-    
-    try {
-        const response = await fetch('/recommend', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                type: 'features',
-                genres: genresArray,
-                themes: themesArray,
-                demographics: demographicsArray,
-                num_recommendations: parseInt(numRecommendations)
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            displayRecommendations(data.recommendations);
-        } else {
-            showError(data.error || 'An error occurred');
-        }
-    } catch (error) {
-        showError('Network error: ' + error.message);
-    }
-}
-
-// Show loading indicator
-function showLoading() {
-    const resultsContainer = document.getElementById('results');
-    resultsContainer.style.display = 'block';
-    resultsContainer.innerHTML = `
-        <h2>Recommendations</h2>
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>Finding the best anime recommendations for you...</p>
-        </div>
+    const container = document.getElementById('recommendations-container');
+    container.innerHTML = `
+      <div class="col-span-full py-4 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
+        <p class="text-white mt-2">Finding recommendations for "${query}"...</p>
+      </div>
     `;
-}
-
-// Display recommendations
-function displayRecommendations(recommendations) {
-    const resultsContainer = document.getElementById('results');
-    resultsContainer.style.display = 'block';
+    
+    // Make API call to get recommendations
+    fetch('/recommend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'anime',
+        anime_title: query,
+        num_recommendations: 12
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        container.innerHTML = `
+          <div class="col-span-full py-4 text-center">
+            <p class="text-red-500">Error: ${data.error}</p>
+          </div>
+        `;
+        return;
+      }
+      
+      displayRecommendations(data.recommendations, query);
+    })
+    .catch(error => {
+      container.innerHTML = `
+        <div class="col-span-full py-4 text-center">
+          <p class="text-red-500">Error: ${error.message}</p>
+        </div>
+      `;
+    });
+  }
+  
+  // Function to display recommendations
+  function displayRecommendations(recommendations, query) {
+    const container = document.getElementById('recommendations-container');
     
     if (!recommendations || recommendations.length === 0) {
-        resultsContainer.innerHTML = `
-            <h2>Recommendations</h2>
-            <p>No recommendations found. Please try a different anime title or features.</p>
-        `;
-        return;
+      container.innerHTML = `
+        <div class="col-span-full py-4 text-center">
+          <p class="text-white">No recommendations found for "${query}".</p>
+        </div>
+      `;
+      return;
     }
     
-    let recommendationsHTML = '<h2>Recommendations</h2>';
+    let html = `
+      <div class="col-span-full py-4">
+        <h2 class="text-white text-xl font-bold">Recommendations for "${query}"</h2>
+        <p class="text-[#9cabba]">Based on your preferences</p>
+      </div>
+    `;
     
-    recommendations.forEach((anime, index) => {
-        recommendationsHTML += `
-            <div class="anime-card">
-                <h3>${index + 1}. ${anime.title}</h3>
-                <div class="anime-info">
-                    <strong>Genres:</strong> ${anime.genres || 'N/A'}
-                </div>
-                <div class="anime-info">
-                    <strong>Themes:</strong> ${anime.themes || 'N/A'}
-                </div>
-                <div class="anime-info">
-                    <strong>Demographics:</strong> ${anime.demographics || 'N/A'}
-                </div>
-                <div class="anime-info similarity-score">
-                    <strong>Similarity Score:</strong> ${anime.similarity_score.toFixed(4)}
-                </div>
-            </div>
-        `;
+    recommendations.forEach(anime => {
+      // Create a simple placeholder image URL
+      const imageUrl = `https://placehold.co/300x400/283039/9cabba?text=${encodeURIComponent(anime.title)}`;
+      
+      html += `
+        <div class="flex flex-col gap-3 pb-3">
+          <div
+            class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg"
+            style='background-image: url("${imageUrl}");'
+          ></div>
+          <div>
+            <p class="text-white text-base font-medium leading-normal">${anime.title}</p>
+            <p class="text-[#9cabba] text-sm font-normal leading-normal">${anime.genres || 'N/A'}</p>
+          </div>
+        </div>
+      `;
     });
     
-    resultsContainer.innerHTML = recommendationsHTML;
-}
-
-// Show error message
-function showError(message) {
-    const resultsContainer = document.getElementById('results');
-    resultsContainer.style.display = 'block';
-    resultsContainer.innerHTML = `
-        <h2>Recommendations</h2>
-        <div class="error">
-            <p>Error: ${message}</p>
-        </div>
-    `;
-}
+    container.innerHTML = html;
+  }
+});
