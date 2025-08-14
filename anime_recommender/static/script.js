@@ -33,7 +33,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // In a full implementation, this would navigate to the recommendations page
   });
   
-  // Function to search for anime (would connect to backend in a full implementation)
+  // Set up category filter buttons
+  const categoryButtons = document.querySelectorAll('.flex.h-8.shrink-0.items-center.justify-center.gap-x-2.rounded-lg.bg-\\[\\#283039\\].pl-4.pr-4');
+  categoryButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const category = this.querySelector('p').textContent;
+      filterByCategory(category);
+    });
+  });
+  
+  // Function to search for anime
   function searchAnime(query) {
     if (query.trim() === '') return;
     
@@ -70,6 +79,59 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       displayRecommendations(data.recommendations, query);
+    })
+    .catch(error => {
+      container.innerHTML = `
+        <div class="col-span-full py-4 text-center">
+          <p class="text-red-500">Error: ${error.message}</p>
+        </div>
+      `;
+    });
+  }
+  
+  // Function to filter by category
+  function filterByCategory(category) {
+    // Remove active class from all buttons
+    categoryButtons.forEach(button => {
+      button.classList.remove('bg-[#007bff]');
+    });
+    
+    // Add active class to clicked button
+    event.target.closest('.flex.h-8.shrink-0.items-center.justify-center.gap-x-2.rounded-lg.bg-\\[\\#283039\\].pl-4.pr-4').classList.add('bg-[#007bff]');
+    
+    // Show loading indicator
+    const container = document.getElementById('recommendations-container');
+    container.innerHTML = `
+      <div class="col-span-full py-4 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
+        <p class="text-white mt-2">Finding ${category} anime...</p>
+      </div>
+    `;
+    
+    // Make API call to get recommendations by category
+    fetch('/recommend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'features',
+        genres: category === 'All' ? [] : [category.toLowerCase()],
+        num_recommendations: 12
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        container.innerHTML = `
+          <div class="col-span-full py-4 text-center">
+            <p class="text-red-500">Error: ${data.error}</p>
+          </div>
+        `;
+        return;
+      }
+      
+      displayRecommendations(data.recommendations, category);
     })
     .catch(error => {
       container.innerHTML = `
@@ -120,4 +182,52 @@ document.addEventListener('DOMContentLoaded', function() {
     
     container.innerHTML = html;
   }
+  
+  // Load initial recommendations
+  loadInitialRecommendations();
 });
+
+// Function to load initial recommendations
+function loadInitialRecommendations() {
+  // Show loading indicator
+  const container = document.getElementById('recommendations-container');
+  container.innerHTML = `
+    <div class="col-span-full py-4 text-center">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
+      <p class="text-white mt-2">Loading recommendations...</p>
+    </div>
+  `;
+  
+  // Make API call to get recommendations by default category (Action)
+  fetch('/recommend', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      type: 'features',
+      genres: ['action'],
+      num_recommendations: 12
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      container.innerHTML = `
+        <div class="col-span-full py-4 text-center">
+          <p class="text-red-500">Error: ${data.error}</p>
+        </div>
+      `;
+      return;
+    }
+    
+    displayRecommendations(data.recommendations, 'Action');
+  })
+  .catch(error => {
+    container.innerHTML = `
+      <div class="col-span-full py-4 text-center">
+        <p class="text-red-500">Error: ${error.message}</p>
+      </div>
+    `;
+  });
+}
