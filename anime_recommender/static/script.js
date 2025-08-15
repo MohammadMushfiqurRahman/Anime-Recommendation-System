@@ -148,6 +148,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
+  // Set up apply filters button
+  document.getElementById('apply-filters-btn').addEventListener('click', function() {
+    const genre = document.getElementById('genre-filter').value;
+    const theme = document.getElementById('theme-filter').value;
+    const demographic = document.getElementById('demographic-filter').value;
+    
+    console.log("Applying filters:", {genre, theme, demographic});
+    
+    // Create filter string
+    let filterString = '';
+    if (genre) filterString += genre + ' ';
+    if (theme) filterString += theme + ' ';
+    if (demographic) filterString += demographic;
+    
+    // If no filters selected, show all anime
+    if (!genre && !theme && !demographic) {
+      filterString = 'All';
+    }
+    
+    filterByFeatures(genre, theme, demographic, filterString.trim() || 'All');
+  });
+  
   // Function to search for anime
   function searchAnime(query) {
     if (query.trim() === '') return;
@@ -251,6 +273,65 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       displayRecommendations(data.recommendations, category);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      container.innerHTML = `
+        <div class="col-span-full py-4 text-center">
+          <p class="text-red-500">Error: ${error.message}</p>
+        </div>
+      `;
+    });
+  }
+  
+  // Function to filter by features
+  function filterByFeatures(genre, theme, demographic, filterString) {
+    console.log("Filtering by features:", {genre, theme, demographic, filterString});
+    
+    // Show loading indicator
+    const container = document.getElementById('recommendations-container');
+    container.innerHTML = `
+      <div class="col-span-full py-4 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
+        <p class="text-white mt-2">Finding anime with filters: ${filterString}...</p>
+      </div>
+    `;
+    
+    // Prepare filter arrays
+    const genres = genre ? [genre] : [];
+    const themes = theme ? [theme] : [];
+    const demographics = demographic ? [demographic] : [];
+    
+    // Make API call to get recommendations by features
+    fetch('/recommend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'features',
+        genres: genres,
+        themes: themes,
+        demographics: demographics,
+        num_recommendations: 12
+      })
+    })
+    .then(response => {
+      console.log("Received response from server:", response);
+      return response.json();
+    })
+    .then(data => {
+      console.log("Received data:", data);
+      if (data.error) {
+        container.innerHTML = `
+          <div class="col-span-full py-4 text-center">
+            <p class="text-red-500">Error: ${data.error}</p>
+          </div>
+        `;
+        return;
+      }
+      
+      displayRecommendations(data.recommendations, filterString);
     })
     .catch(error => {
       console.error("Error:", error);
