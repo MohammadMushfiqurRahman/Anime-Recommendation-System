@@ -52,7 +52,7 @@
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
                     <path
-                      d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"
+                      d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
                     ></path>
                   </svg>
                 </div>
@@ -86,10 +86,11 @@
               <div class="mb-4">
                 <h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">How to Get Recommendations</h2>
                 <p class="text-[#9cabba] text-sm font-normal leading-normal mt-1">
-                  You can get anime recommendations in two ways:
+                  You can get anime recommendations in multiple ways:
                 </p>
                 <ul class="text-[#9cabba] text-sm font-normal leading-normal mt-2 list-disc list-inside">
-                  <li>Type the name of an anime you like in the search box below and press Enter</li>
+                  <li>Type the name of an anime you like in the search box and press Enter</li>
+                  <li>Filter by genre, theme, or demographic using the options below</li>
                   <li>Click on the category filters (All, Action, Comedy, Drama) to browse by genre</li>
                 </ul>
               </div>
@@ -115,6 +116,64 @@
                 </div>
               </label>
             </div>
+            
+            <!-- Filter section -->
+            <div class="px-4 py-3">
+              <h3 class="text-white text-md font-bold leading-tight tracking-[-0.015em] mb-3">Filter Recommendations</h3>
+              <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3">
+                <!-- Genre filter -->
+                <div class="flex flex-col gap-1">
+                  <label class="text-[#9cabba] text-sm font-medium leading-normal">Genre</label>
+                  <select class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#283039] focus:border-none h-10 placeholder:text-[#9cabba] px-4 text-base font-normal leading-normal" id="genre-filter">
+                    <option value="">Any Genre</option>
+                    <option value="action">Action</option>
+                    <option value="adventure">Adventure</option>
+                    <option value="comedy">Comedy</option>
+                    <option value="drama">Drama</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="romance">Romance</option>
+                    <option value="scifi">Sci-Fi</option>
+                    <option value="slice of life">Slice of Life</option>
+                  </select>
+                </div>
+                
+                <!-- Theme filter -->
+                <div class="flex flex-col gap-1">
+                  <label class="text-[#9cabba] text-sm font-medium leading-normal">Theme</label>
+                  <select class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#283039] focus:border-none h-10 placeholder:text-[#9cabba] px-4 text-base font-normal leading-normal" id="theme-filter">
+                    <option value="">Any Theme</option>
+                    <option value="school">School</option>
+                    <option value="space">Space</option>
+                    <option value="romance">Romance</option>
+                    <option value="comedy">Comedy</option>
+                    <option value="military">Military</option>
+                    <option value="fantasy">Fantasy</option>
+                  </select>
+                </div>
+                
+                <!-- Demographic filter -->
+                <div class="flex flex-col gap-1">
+                  <label class="text-[#9cabba] text-sm font-medium leading-normal">Demographic</label>
+                  <select class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#283039] focus:border-none h-10 placeholder:text-[#9cabba] px-4 text-base font-normal leading-normal" id="demographic-filter">
+                    <option value="">Any Demographic</option>
+                    <option value="shounen">Shounen</option>
+                    <option value="shoujo">Shoujo</option>
+                    <option value="seinen">Seinen</option>
+                    <option value="josei">Josei</option>
+                    <option value="kids">Kids</option>
+                  </select>
+                </div>
+                
+                <!-- Apply filters button -->
+                <div class="flex items-end">
+                  <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#007bff] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-4 w-full" id="apply-filters-btn">
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Category filters -->
             <div class="flex gap-3 p-3 overflow-x-hidden">
               <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-4 cursor-pointer" data-category="All">
                 <p class="text-white text-sm font-medium leading-normal">All</p>
@@ -129,6 +188,8 @@
                 <p class="text-white text-sm font-medium leading-normal">Drama</p>
               </div>
             </div>
+            
+            <!-- Recommendations container -->
             <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4" id="recommendations-container">
               <!-- Recommendations will be dynamically inserted here -->
             </div>
@@ -270,6 +331,26 @@
           });
         });
         
+        // Set up apply filters button
+        document.getElementById('apply-filters-btn').addEventListener('click', function() {
+          const genre = document.getElementById('genre-filter').value;
+          const theme = document.getElementById('theme-filter').value;
+          const demographic = document.getElementById('demographic-filter').value;
+          
+          // Create filter string
+          let filterString = '';
+          if (genre) filterString += genre + ' ';
+          if (theme) filterString += theme + ' ';
+          if (demographic) filterString += demographic;
+          
+          // If no filters selected, show all anime
+          if (!genre && !theme && !demographic) {
+            filterString = 'All';
+          }
+          
+          filterByFeatures(genre, theme, demographic, filterString.trim() || 'All');
+        });
+        
         // Function to search for anime
         function searchAnime(query) {
           if (query.trim() === '') return;
@@ -360,6 +441,58 @@
             }
             
             displayRecommendations(data.recommendations, category);
+          })
+          .catch(error => {
+            container.innerHTML = `
+              <div class="col-span-full py-4 text-center">
+                <p class="text-red-500">Error: ${error.message}</p>
+              </div>
+            `;
+          });
+        }
+        
+        // Function to filter by features
+        function filterByFeatures(genre, theme, demographic, filterString) {
+          // Show loading indicator
+          const container = document.getElementById('recommendations-container');
+          container.innerHTML = `
+            <div class="col-span-full py-4 text-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
+              <p class="text-white mt-2">Finding anime with filters: ${filterString}...</p>
+            </div>
+          `;
+          
+          // Prepare filter arrays
+          const genres = genre ? [genre] : [];
+          const themes = theme ? [theme] : [];
+          const demographics = demographic ? [demographic] : [];
+          
+          // Make API call to get recommendations by features
+          fetch('/recommend', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              type: 'features',
+              genres: genres,
+              themes: themes,
+              demographics: demographics,
+              num_recommendations: 12
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              container.innerHTML = `
+                <div class="col-span-full py-4 text-center">
+                  <p class="text-red-500">Error: ${data.error}</p>
+                </div>
+              `;
+              return;
+            }
+            
+            displayRecommendations(data.recommendations, filterString);
           })
           .catch(error => {
             container.innerHTML = `
