@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import os
 from recommender import AnimeRecommender
+import numpy as np
 
 app = Flask(__name__)
 
@@ -58,10 +59,10 @@ def recommend():
         for _, row in recommendations.iterrows():
             rec_list.append({
                 'title': row['title'],
-                'genres': row['genres'],
-                'themes': row['themes'],
-                'demographics': row['demographics'],
-                'similarity_score': float(row['similarity_score'])
+                'genres': row['genres'] if pd.notna(row['genres']) else '',
+                'themes': row['themes'] if pd.notna(row['themes']) else '',
+                'demographics': row['demographics'] if pd.notna(row['demographics']) else '',
+                'similarity_score': float(row['similarity_score']) if pd.notna(row['similarity_score']) else 0.0
             })
         
         return jsonify({'recommendations': rec_list})

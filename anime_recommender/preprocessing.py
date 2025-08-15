@@ -8,8 +8,10 @@ def clean_text(text):
     """Clean text data by removing special characters and converting to lowercase"""
     if pd.isna(text):
         return ""
+    # Convert to string first to handle any non-string types
+    text = str(text)
     # Remove special characters and digits
-    text = re.sub(r'[^a-zA-Z\s,]', '', str(text))
+    text = re.sub(r'[^a-zA-Z0-9\s,]', '', text)
     # Convert to lowercase
     text = text.lower()
     # Remove extra whitespace
@@ -20,7 +22,7 @@ def preprocess_anime_data():
     """Preprocess the anime data for recommendation system"""
     # Load the full dataset
     print("Loading dataset...")
-    df = pd.read_csv('65k_anime_data.csv')
+    df = pd.read_csv('65k_anime_data.csv', encoding='utf-8', encoding_errors='ignore')
     print(f"Dataset loaded with {len(df)} rows")
     
     # Select relevant columns for recommendation system
@@ -69,5 +71,5 @@ if __name__ == "__main__":
     df_processed = preprocess_anime_data()
     
     # Save processed data
-    df_processed.to_csv('anime_recommender/processed_anime_data.csv', index=False)
+    df_processed.to_csv('anime_recommender/processed_anime_data.csv', index=False, encoding='utf-8')
     print("Processed data saved to 'anime_recommender/processed_anime_data.csv'")

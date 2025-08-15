@@ -56,6 +56,9 @@ class AnimeRecommender:
         recommendations = self.df[['title', 'genres', 'themes', 'demographics']].iloc[anime_indices].copy()
         recommendations['similarity_score'] = sim_scores
         
+        # Replace any NaN values with empty strings
+        recommendations = recommendations.fillna('')
+        
         return recommendations.reset_index(drop=True)
     
     def get_recommendations_by_features(self, genres=None, themes=None, demographics=None, num_recommendations=10):
@@ -86,6 +89,9 @@ class AnimeRecommender:
         # Return recommendations
         recommendations = self.df[['title', 'genres', 'themes', 'demographics']].iloc[top_indices].copy()
         recommendations['similarity_score'] = top_scores
+        
+        # Replace any NaN values with empty strings
+        recommendations = recommendations.fillna('')
         
         return recommendations.reset_index(drop=True)
 

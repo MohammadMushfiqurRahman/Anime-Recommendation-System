@@ -1,3 +1,89 @@
+// Function to display recommendations
+function displayRecommendations(recommendations, query) {
+  const container = document.getElementById('recommendations-container');
+  
+  if (!recommendations || recommendations.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full py-4 text-center">
+        <p class="text-white">No recommendations found for "${query}".</p>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = `
+    <div class="col-span-full py-4">
+      <h2 class="text-white text-xl font-bold">Recommendations for "${query}"</h2>
+      <p class="text-[#9cabba]">Based on your preferences</p>
+    </div>
+  `;
+  
+  recommendations.forEach(anime => {
+    // Create a simple placeholder image URL
+    const imageUrl = `https://placehold.co/300x400/283039/9cabba?text=${encodeURIComponent(anime.title)}`;
+    
+    html += `
+      <div class="flex flex-col gap-3 pb-3">
+        <div
+          class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg"
+          style='background-image: url("${imageUrl}");'
+        ></div>
+        <div>
+          <p class="text-white text-base font-medium leading-normal">${anime.title}</p>
+          <p class="text-[#9cabba] text-sm font-normal leading-normal">${anime.genres || 'N/A'}</p>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// Function to load initial recommendations
+function loadInitialRecommendations() {
+  // Show loading indicator
+  const container = document.getElementById('recommendations-container');
+  container.innerHTML = `
+    <div class="col-span-full py-4 text-center">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
+      <p class="text-white mt-2">Loading recommendations...</p>
+    </div>
+  `;
+  
+  // Make API call to get recommendations by default category (Action)
+  fetch('/recommend', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      type: 'features',
+      genres: ['action'],
+      num_recommendations: 12
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      container.innerHTML = `
+        <div class="col-span-full py-4 text-center">
+          <p class="text-red-500">Error: ${data.error}</p>
+        </div>
+      `;
+      return;
+    }
+    
+    displayRecommendations(data.recommendations, 'Action');
+  })
+  .catch(error => {
+    container.innerHTML = `
+      <div class="col-span-full py-4 text-center">
+        <p class="text-red-500">Error: ${error.message}</p>
+      </div>
+    `;
+  });
+}
+
 // Simple JavaScript for the UI
 document.addEventListener('DOMContentLoaded', function() {
   // Anime search functionality
@@ -31,13 +117,14 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('recommendations-link').addEventListener('click', function(e) {
     e.preventDefault();
     // In a full implementation, this would navigate to the recommendations page
+    loadInitialRecommendations();
   });
   
   // Set up category filter buttons
-  const categoryButtons = document.querySelectorAll('.flex.h-8.shrink-0.items-center.justify-center.gap-x-2.rounded-lg.bg-\\[\\#283039\\].pl-4.pr-4');
+  const categoryButtons = document.querySelectorAll('[data-category]');
   categoryButtons.forEach(button => {
     button.addEventListener('click', function() {
-      const category = this.querySelector('p').textContent;
+      const category = this.getAttribute('data-category');
       filterByCategory(category);
     });
   });
@@ -97,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Add active class to clicked button
-    event.target.closest('.flex.h-8.shrink-0.items-center.justify-center.gap-x-2.rounded-lg.bg-\\[\\#283039\\].pl-4.pr-4').classList.add('bg-[#007bff]');
+    event.target.closest('[data-category]').classList.add('bg-[#007bff]');
     
     // Show loading indicator
     const container = document.getElementById('recommendations-container');
@@ -142,92 +229,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Function to display recommendations
-  function displayRecommendations(recommendations, query) {
-    const container = document.getElementById('recommendations-container');
-    
-    if (!recommendations || recommendations.length === 0) {
-      container.innerHTML = `
-        <div class="col-span-full py-4 text-center">
-          <p class="text-white">No recommendations found for "${query}".</p>
-        </div>
-      `;
-      return;
-    }
-    
-    let html = `
-      <div class="col-span-full py-4">
-        <h2 class="text-white text-xl font-bold">Recommendations for "${query}"</h2>
-        <p class="text-[#9cabba]">Based on your preferences</p>
-      </div>
-    `;
-    
-    recommendations.forEach(anime => {
-      // Create a simple placeholder image URL
-      const imageUrl = `https://placehold.co/300x400/283039/9cabba?text=${encodeURIComponent(anime.title)}`;
-      
-      html += `
-        <div class="flex flex-col gap-3 pb-3">
-          <div
-            class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg"
-            style='background-image: url("${imageUrl}");'
-          ></div>
-          <div>
-            <p class="text-white text-base font-medium leading-normal">${anime.title}</p>
-            <p class="text-[#9cabba] text-sm font-normal leading-normal">${anime.genres || 'N/A'}</p>
-          </div>
-        </div>
-      `;
-    });
-    
-    container.innerHTML = html;
-  }
-  
   // Load initial recommendations
   loadInitialRecommendations();
 });
-
-// Function to load initial recommendations
-function loadInitialRecommendations() {
-  // Show loading indicator
-  const container = document.getElementById('recommendations-container');
-  container.innerHTML = `
-    <div class="col-span-full py-4 text-center">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
-      <p class="text-white mt-2">Loading recommendations...</p>
-    </div>
-  `;
-  
-  // Make API call to get recommendations by default category (Action)
-  fetch('/recommend', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      type: 'features',
-      genres: ['action'],
-      num_recommendations: 12
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.error) {
-      container.innerHTML = `
-        <div class="col-span-full py-4 text-center">
-          <p class="text-red-500">Error: ${data.error}</p>
-        </div>
-      `;
-      return;
-    }
-    
-    displayRecommendations(data.recommendations, 'Action');
-  })
-  .catch(error => {
-    container.innerHTML = `
-      <div class="col-span-full py-4 text-center">
-        <p class="text-red-500">Error: ${error.message}</p>
-      </div>
-    `;
-  });
-}
