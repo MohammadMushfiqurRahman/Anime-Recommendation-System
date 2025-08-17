@@ -73,8 +73,12 @@ class AnimeRecommender:
             filter_string += " ".join(demographics) + " "
         
         if not filter_string.strip():
-            print("Please provide at least one feature (genres, themes, or demographics)")
-            return pd.DataFrame()
+            # If no features are provided, return top-rated anime
+            print("No features provided. Returning top-rated anime.")
+            top_rated = self.df.sort_values(by='rating', ascending=False).head(num_recommendations)
+            recommendations = top_rated[['title', 'genres', 'themes', 'demographics']].copy()
+            recommendations['similarity_score'] = top_rated['rating']
+            return recommendations.reset_index(drop=True)
         
         # Transform the filter string
         filter_vector = self.tfidf.transform([filter_string])

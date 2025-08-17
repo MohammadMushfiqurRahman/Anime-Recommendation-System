@@ -18,6 +18,7 @@ def index():
 def recommend():
     """API endpoint for getting anime recommendations"""
     data = request.get_json()
+    print(f"Received data: {data}")  # Debugging statement
     
     # Get the recommendation type and parameters
     rec_type = data.get('type', 'anime')
@@ -50,6 +51,8 @@ def recommend():
         else:
             return jsonify({'error': 'Invalid recommendation type'}), 400
         
+        print(f"Recommendations: {recommendations}")  # Debugging statement
+        
         # Convert recommendations to JSON-serializable format
         if recommendations.empty:
             return jsonify({'recommendations': []})
@@ -68,6 +71,7 @@ def recommend():
         return jsonify({'recommendations': rec_list})
     
     except Exception as e:
+        print(f"Error: {e}")  # Debugging statement
         return jsonify({'error': str(e)}), 500
 
 @app.route('/anime_list')
