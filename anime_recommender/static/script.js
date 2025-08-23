@@ -4,6 +4,8 @@ function displayRecommendations(recommendations, query) {
   console.log("Recommendations:", recommendations);
   
   const container = document.getElementById('recommendations-container');
+  const errorContainer = document.getElementById('error-container');
+  errorContainer.innerHTML = ''; // Clear previous errors
   
   if (!recommendations || recommendations.length === 0) {
     container.innerHTML = `
@@ -43,11 +45,19 @@ function displayRecommendations(recommendations, query) {
   container.innerHTML = html;
 }
 
+// Function to handle API errors
+function handleApiError(error) {
+  console.error("API Error:", error);
+  const errorContainer = document.getElementById('error-container');
+  errorContainer.innerHTML = `<p class="text-red-500">Error: ${error.message || 'An unknown error occurred.'}</p>`;
+  const recommendationsContainer = document.getElementById('recommendations-container');
+  recommendationsContainer.innerHTML = ''; // Clear recommendations
+}
+
 // Function to load initial recommendations
 function loadInitialRecommendations() {
   console.log("Loading initial recommendations");
   
-  // Show loading indicator
   const container = document.getElementById('recommendations-container');
   container.innerHTML = `
     <div class="col-span-full py-4 text-center">
@@ -56,7 +66,6 @@ function loadInitialRecommendations() {
     </div>
   `;
   
-  // Make API call to get recommendations by default category (Action)
   fetch('/recommend', {
     method: 'POST',
     headers: {
@@ -69,29 +78,16 @@ function loadInitialRecommendations() {
     })
   })
   .then(response => {
-    console.log("Received response from server:", response);
+    if (!response.ok) {
+      return response.json().then(err => { throw new Error(err.error || response.statusText) });
+    }
     return response.json();
   })
   .then(data => {
-    console.log("Received data:", data);
-    if (data.error) {
-      container.innerHTML = `
-        <div class="col-span-full py-4 text-center">
-          <p class="text-red-500">Error: ${data.error}</p>
-        </div>
-      `;
-      return;
-    }
-    
     displayRecommendations(data.recommendations, 'Action');
   })
   .catch(error => {
-    console.error("Error:", error);
-    container.innerHTML = `
-      <div class="col-span-full py-4 text-center">
-        <p class="text-red-500">Error: ${error.message}</p>
-      </div>
-    `;
+    handleApiError(error);
   });
 }
 
@@ -122,19 +118,16 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('home-link').addEventListener('click', function(e) {
     e.preventDefault();
     console.log("Home link clicked");
-    // In a full implementation, this would navigate to the home page
   });
   
   document.getElementById('browse-link').addEventListener('click', function(e) {
     e.preventDefault();
     console.log("Browse link clicked");
-    // In a full implementation, this would navigate to the browse page
   });
   
   document.getElementById('recommendations-link').addEventListener('click', function(e) {
     e.preventDefault();
     console.log("Recommendations link clicked");
-    // In a full implementation, this would navigate to the recommendations page
     loadInitialRecommendations();
   });
   
@@ -156,13 +149,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log("Applying filters:", {genre, theme, demographic});
     
-    // Create filter string
     let filterString = '';
     if (genre) filterString += genre + ' ';
     if (theme) filterString += theme + ' ';
     if (demographic) filterString += demographic;
     
-    // If no filters selected, show all anime
     if (!genre && !theme && !demographic) {
       filterString = 'All';
     }
@@ -176,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log("Searching for anime:", query);
     
-    // Show loading indicator
     const container = document.getElementById('recommendations-container');
     container.innerHTML = `
       <div class="col-span-full py-4 text-center">
@@ -185,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     `;
     
-    // Make API call to get recommendations
     fetch('/recommend', {
       method: 'POST',
       headers: {
@@ -198,29 +187,16 @@ document.addEventListener('DOMContentLoaded', function() {
       })
     })
     .then(response => {
-      console.log("Received response from server:", response);
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.error || response.statusText) });
+      }
       return response.json();
     })
     .then(data => {
-      console.log("Received data:", data);
-      if (data.error) {
-        container.innerHTML = `
-          <div class="col-span-full py-4 text-center">
-            <p class="text-red-500">Error: ${data.error}</p>
-          </div>
-        `;
-        return;
-      }
-      
       displayRecommendations(data.recommendations, query);
     })
     .catch(error => {
-      console.error("Error:", error);
-      container.innerHTML = `
-        <div class="col-span-full py-4 text-center">
-          <p class="text-red-500">Error: ${error.message}</p>
-        </div>
-      `;
+      handleApiError(error);
     });
   }
   
@@ -228,15 +204,12 @@ document.addEventListener('DOMContentLoaded', function() {
   function filterByCategory(category) {
     console.log("Filtering by category:", category);
     
-    // Remove active class from all buttons
     categoryButtons.forEach(button => {
       button.classList.remove('bg-[#007bff]');
     });
     
-    // Add active class to clicked button
     event.target.closest('[data-category]').classList.add('bg-[#007bff]');
     
-    // Show loading indicator
     const container = document.getElementById('recommendations-container');
     container.innerHTML = `
       <div class="col-span-full py-4 text-center">
@@ -245,7 +218,6 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     `;
     
-    // Make API call to get recommendations by category
     fetch('/recommend', {
       method: 'POST',
       headers: {
@@ -258,29 +230,16 @@ document.addEventListener('DOMContentLoaded', function() {
       })
     })
     .then(response => {
-      console.log("Received response from server:", response);
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.error || response.statusText) });
+      }
       return response.json();
     })
     .then(data => {
-      console.log("Received data:", data);
-      if (data.error) {
-        container.innerHTML = `
-          <div class="col-span-full py-4 text-center">
-            <p class="text-red-500">Error: ${data.error}</p>
-          </div>
-        `;
-        return;
-      }
-      
       displayRecommendations(data.recommendations, category);
     })
     .catch(error => {
-      console.error("Error:", error);
-      container.innerHTML = `
-        <div class="col-span-full py-4 text-center">
-          <p class="text-red-500">Error: ${error.message}</p>
-        </div>
-      `;
+      handleApiError(error);
     });
   }
   
@@ -288,7 +247,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function filterByFeatures(genre, theme, demographic, filterString) {
     console.log("Filtering by features:", {genre, theme, demographic, filterString});
     
-    // Show loading indicator
     const container = document.getElementById('recommendations-container');
     container.innerHTML = `
       <div class="col-span-full py-4 text-center">
@@ -297,12 +255,10 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     `;
     
-    // Prepare filter arrays
     const genres = genre ? [genre] : [];
     const themes = theme ? [theme] : [];
     const demographics = demographic ? [demographic] : [];
     
-    // Make API call to get recommendations by features
     fetch('/recommend', {
       method: 'POST',
       headers: {
@@ -317,29 +273,16 @@ document.addEventListener('DOMContentLoaded', function() {
       })
     })
     .then(response => {
-      console.log("Received response from server:", response);
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.error || response.statusText) });
+      }
       return response.json();
     })
     .then(data => {
-      console.log("Received data:", data);
-      if (data.error) {
-        container.innerHTML = `
-          <div class="col-span-full py-4 text-center">
-            <p class="text-red-500">Error: ${data.error}</p>
-          </div>
-        `;
-        return;
-      }
-      
       displayRecommendations(data.recommendations, filterString);
     })
     .catch(error => {
-      console.error("Error:", error);
-      container.innerHTML = `
-        <div class="col-span-full py-4 text-center">
-          <p class="text-red-500">Error: ${error.message}</p>
-        </div>
-      `;
+      handleApiError(error);
     });
   }
   
