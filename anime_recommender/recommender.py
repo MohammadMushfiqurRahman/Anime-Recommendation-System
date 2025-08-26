@@ -60,6 +60,24 @@ class AnimeRecommender:
         recommendations = recommendations.fillna('')
         
         return recommendations.reset_index(drop=True)
+
+    def get_surprise_recommendation(self, min_rating=8.0):
+        """Get a random highly-rated anime recommendation"""
+        # Filter for highly-rated anime
+        highly_rated_anime = self.df[self.df['rating'] >= min_rating]
+        
+        if highly_rated_anime.empty:
+            # If no anime meets the criteria, return a random one from the whole dataset
+            highly_rated_anime = self.df
+            
+        # Get a random anime from the filtered list
+        surprise_anime = highly_rated_anime.sample(n=1)
+        
+        # Format the output to be consistent with other recommendation methods
+        recommendation = surprise_anime[['title', 'genres', 'themes', 'demographics']].copy()
+        recommendation['similarity_score'] = surprise_anime['rating']
+        
+        return recommendation.reset_index(drop=True)
     
     def get_recommendations_by_features(self, genres=None, themes=None, demographics=None, num_recommendations=10):
         """Get anime recommendations based on specific features"""
