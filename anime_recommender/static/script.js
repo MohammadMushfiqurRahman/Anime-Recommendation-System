@@ -160,6 +160,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     filterByFeatures(genre, theme, demographic, filterString.trim() || 'All');
   });
+
+  // Set up surprise me button
+  document.getElementById('surprise-me-btn').addEventListener('click', function() {
+    surpriseMe();
+  });
   
   // Function to search for anime
   function searchAnime(query) {
@@ -286,6 +291,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
+  // Function to get a surprise recommendation
+  function surpriseMe() {
+    console.log("Getting a surprise recommendation");
+    
+    const container = document.getElementById('recommendations-container');
+    container.innerHTML = `
+      <div class="col-span-full py-4 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007bff]"></div>
+        <p class="text-white mt-2">Finding a surprise anime...</p>
+      </div>
+    `;
+    
+    fetch('/surprise')
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.error || response.statusText) });
+      }
+      return response.json();
+    })
+    .then(data => {
+      displayRecommendations(data.recommendations, 'Surprise Recommendation');
+    })
+    .catch(error => {
+      handleApiError(error);
+    });
+  }
+
   // Load initial recommendations
   loadInitialRecommendations();
 });
