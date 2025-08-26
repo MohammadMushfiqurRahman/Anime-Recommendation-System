@@ -74,7 +74,23 @@ def recommend():
         print(f"Error: {e}")  # Debugging statement
         return jsonify({'error': str(e)}), 500
 
-@app.route('/anime_list')
+@app.route('/surprise')
+def surprise():
+    """API endpoint for getting a surprise anime recommendation"""
+    try:
+        recommendation = recommender.get_surprise_recommendation()
+        rec_list = []
+        for _, row in recommendation.iterrows():
+            rec_list.append({
+                'title': row['title'],
+                'genres': row['genres'] if pd.notna(row['genres']) else '',
+                'themes': row['themes'] if pd.notna(row['themes']) else '',
+                'demographics': row['demographics'] if pd.notna(row['demographics']) else '',
+                'similarity_score': float(row['similarity_score']) if pd.notna(row['similarity_score']) else 0.0
+            })
+        return jsonify({'recommendations': rec_list})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 def anime_list():
     """API endpoint for getting a list of all anime titles"""
     try:
