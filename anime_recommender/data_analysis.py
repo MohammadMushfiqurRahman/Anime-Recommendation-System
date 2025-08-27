@@ -1,8 +1,7 @@
 import pandas as pd
-import numpy as np
 
 # Load a sample of the data to understand its structure
-# Since the file is large, we'll read just the first 1000 rows for initial analysis
+# Since the file is large, we'll read just the first 1000 rows
 df_sample = pd.read_csv("65k_anime_data.csv", nrows=1000)
 
 print("Dataset shape:", df_sample.shape)
