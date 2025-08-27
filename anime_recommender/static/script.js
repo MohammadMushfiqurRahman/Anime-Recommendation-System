@@ -94,6 +94,21 @@ function loadInitialRecommendations() {
 // Simple JavaScript for the UI
 document.addEventListener('DOMContentLoaded', function() {
   console.log("DOM loaded");
+
+  // Initialize autocomplete
+  const autocomplete = new Autocomplete(document.querySelector('#anime-search-input'), {
+    data: [],
+    onSelectItem: ({label, value}) => {
+      searchAnime(value);
+    }
+  });
+
+  fetch('/anime_list')
+    .then(response => response.json())
+    .then(data => {
+      const animeTitles = data.anime_titles.map(title => ({ label: title, value: title }));
+      autocomplete.setData(animeTitles);
+    });
   
   // Anime search functionality
   const animeSearchInput = document.getElementById('anime-search-input');
