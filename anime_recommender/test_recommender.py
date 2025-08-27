@@ -14,14 +14,18 @@ class TestAnimeRecommender(unittest.TestCase):
     def test_get_recommendations_valid_title(self):
         """Test getting recommendations for a valid anime title."""
         print("Testing recommendations for a valid title...")
-        recommendations = self.recommender.get_recommendations("Cowboy Bebop", 5)
+        recommendations = self.recommender.get_recommendations(
+            "Cowboy Bebop", 5
+        )
         self.assertIsInstance(recommendations, pd.DataFrame)
         self.assertEqual(len(recommendations), 5)
 
     def test_get_recommendations_invalid_title(self):
         """Test getting recommendations for an invalid anime title."""
         print("Testing recommendations for an invalid title...")
-        recommendations = self.recommender.get_recommendations("NonExistentAnime", 5)
+        recommendations = self.recommender.get_recommendations(
+            "NonExistentAnime", 5
+        )
         self.assertIsInstance(recommendations, pd.DataFrame)
         self.assertTrue(recommendations.empty)
 

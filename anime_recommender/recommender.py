@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import warnings
@@ -35,7 +34,10 @@ class AnimeRecommender:
             ]
             if similar_titles:
                 return {
-                    "message": f"Exact title '{title}' not found. Did you mean one of these?",
+                    "message": (
+                        f"Exact title '{title}' not found. "
+                        "Did you mean one of these?"
+                    ),
                     "suggestions": similar_titles[:5],
                 }
             else:
@@ -60,11 +62,9 @@ class AnimeRecommender:
         anime_indices = sim_scores_indices
 
         # Return the top most similar anime
-        recommendations = (
-            self.df[["title", "genres", "themes", "demographics", "synopsis", "rating"]]
-            .iloc[anime_indices]
-            .copy()
-        )
+        recommendations = self.df[
+            ["title", "genres", "themes", "demographics", "synopsis", "rating"]
+        ].iloc[anime_indices].copy()
         recommendations["similarity_score"] = sim_scores
 
         # Replace any NaN values with empty strings
@@ -78,7 +78,7 @@ class AnimeRecommender:
         highly_rated_anime = self.df[self.df["rating"] >= min_rating]
 
         if highly_rated_anime.empty:
-            # If no anime meets the criteria, return a random one from the whole dataset
+            # If no anime meets the criteria, return a random one
             highly_rated_anime = self.df
 
         # Get a random anime from the filtered list
@@ -128,11 +128,9 @@ class AnimeRecommender:
         top_scores = sim_scores[top_indices]
 
         # Return recommendations
-        recommendations = (
-            self.df[["title", "genres", "themes", "demographics"]]
-            .iloc[top_indices]
-            .copy()
-        )
+        recommendations = self.df[
+            ["title", "genres", "themes", "demographics"]
+        ].iloc[top_indices].copy()
         recommendations["similarity_score"] = top_scores
 
         # Replace any NaN values with empty strings
