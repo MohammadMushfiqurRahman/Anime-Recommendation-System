@@ -28,13 +28,9 @@ class AnimeRecommender:
             # Try to find similar titles
             similar_titles = [t for t in self.indices.index if title.lower() in t.lower()]
             if similar_titles:
-                print(f"Exact title '{title}' not found. Did you mean one of these?")
-                for i, t in enumerate(similar_titles[:5]):
-                    print(f"{i+1}. {t}")
-                return pd.DataFrame()
+                return {'message': f"Exact title '{title}' not found. Did you mean one of these?", 'suggestions': similar_titles[:5]}
             else:
-                print(f"Anime '{title}' not found in the dataset.")
-                return pd.DataFrame()
+                return {'message': f"Anime '{title}' not found in the dataset."}
         
         # Get the index of the anime that matches the title
         idx = self.indices[title]
@@ -53,7 +49,7 @@ class AnimeRecommender:
         anime_indices = sim_scores_indices
         
         # Return the top most similar anime
-        recommendations = self.df[['title', 'genres', 'themes', 'demographics']].iloc[anime_indices].copy()
+        recommendations = self.df[['title', 'genres', 'themes', 'demographics', 'synopsis', 'rating']].iloc[anime_indices].copy()
         recommendations['similarity_score'] = sim_scores
         
         # Replace any NaN values with empty strings
@@ -74,7 +70,7 @@ class AnimeRecommender:
         surprise_anime = highly_rated_anime.sample(n=1)
         
         # Format the output to be consistent with other recommendation methods
-        recommendation = surprise_anime[['title', 'genres', 'themes', 'demographics']].copy()
+        recommendation = surprise_anime[['title', 'genres', 'themes', 'demographics', 'synopsis', 'rating']].copy()
         recommendation['similarity_score'] = surprise_anime['rating']
         
         return recommendation.reset_index(drop=True)
