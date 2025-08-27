@@ -3,79 +3,98 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
+
 
 class AnimeRecommender:
-    def __init__(self, data_path='anime_recommender/processed_anime_data.csv'):
+    def __init__(self, data_path="anime_recommender/processed_anime_data.csv"):
         """Initialize the recommender system with processed data"""
         print("Loading processed data...")
         self.df = pd.read_csv(data_path)
         print(f"Loaded {len(self.df)} anime entries")
-        
+
         # Create indices for fast lookup
-        self.indices = pd.Series(self.df.index, index=self.df['title']).drop_duplicates()
-        
+        self.indices = pd.Series(
+            self.df.index, index=self.df["title"]
+        ).drop_duplicates()
+
         # Initialize TF-IDF vectorizer
         print("Initializing TF-IDF vectorizer...")
-        self.tfidf = TfidfVectorizer(stop_words='english', max_features=10000)
-        self.tfidf_matrix = self.tfidf.fit_transform(self.df['combined_features'])
+        self.tfidf = TfidfVectorizer(stop_words="english", max_features=10000)
+        self.tfidf_matrix = self.tfidf.fit_transform(self.df["combined_features"])
         print("Recommender system initialized!")
-    
+
     def get_recommendations(self, title, num_recommendations=10):
         """Get anime recommendations based on title"""
         # Check if the anime exists in our dataset
         if title not in self.indices:
             # Try to find similar titles
-            similar_titles = [t for t in self.indices.index if title.lower() in t.lower()]
+            similar_titles = [
+                t for t in self.indices.index if title.lower() in t.lower()
+            ]
             if similar_titles:
-                return {'message': f"Exact title '{title}' not found. Did you mean one of these?", 'suggestions': similar_titles[:5]}
+                return {
+                    "message": f"Exact title '{title}' not found. Did you mean one of these?",
+                    "suggestions": similar_titles[:5],
+                }
             else:
-                return {'message': f"Anime '{title}' not found in the dataset."}
-        
+                return {"message": f"Anime '{title}' not found in the dataset."}
+
         # Get the index of the anime that matches the title
         idx = self.indices[title]
-        
+
         # Get the pairwise similarity scores of all anime with that anime
-        sim_scores = cosine_similarity(self.tfidf_matrix[idx], self.tfidf_matrix).flatten()
-        
+        sim_scores = cosine_similarity(
+            self.tfidf_matrix[idx], self.tfidf_matrix
+        ).flatten()
+
         # Sort the anime based on the similarity scores
         sim_scores_indices = sim_scores.argsort()[::-1]
-        
+
         # Get the scores of the most similar anime (excluding the anime itself)
-        sim_scores_indices = sim_scores_indices[1:num_recommendations+1]
+        sim_scores_indices = sim_scores_indices[1 : num_recommendations + 1]
         sim_scores = sim_scores[sim_scores_indices]
-        
+
         # Get the anime indices
         anime_indices = sim_scores_indices
-        
+
         # Return the top most similar anime
-        recommendations = self.df[['title', 'genres', 'themes', 'demographics', 'synopsis', 'rating']].iloc[anime_indices].copy()
-        recommendations['similarity_score'] = sim_scores
-        
+        recommendations = (
+            self.df[["title", "genres", "themes", "demographics", "synopsis", "rating"]]
+            .iloc[anime_indices]
+            .copy()
+        )
+        recommendations["similarity_score"] = sim_scores
+
         # Replace any NaN values with empty strings
-        recommendations = recommendations.fillna('')
-        
+        recommendations = recommendations.fillna("")
+
         return recommendations.reset_index(drop=True)
 
     def get_surprise_recommendation(self, min_rating=8.0):
         """Get a random highly-rated anime recommendation"""
         # Filter for highly-rated anime
-        highly_rated_anime = self.df[self.df['rating'] >= min_rating]
-        
+        highly_rated_anime = self.df[self.df["rating"] >= min_rating]
+
         if highly_rated_anime.empty:
             # If no anime meets the criteria, return a random one from the whole dataset
             highly_rated_anime = self.df
-            
+
         # Get a random anime from the filtered list
         surprise_anime = highly_rated_anime.sample(n=1)
-        
+
         # Format the output to be consistent with other recommendation methods
-        recommendation = surprise_anime[['title', 'genres', 'themes', 'demographics', 'synopsis', 'rating']].copy()
-        recommendation['similarity_score'] = surprise_anime['rating']
-        
+        recommendation = surprise_anime[
+            ["title", "genres", "themes", "demographics", "synopsis", "rating"]
+        ].copy()
+        recommendation["similarity_score"] = surprise_anime["rating"]
+
         return recommendation.reset_index(drop=True)
-    
-    def get_recommendations_by_features(self, genres=None, themes=None, demographics=None, num_recommendations=10):
+
+    def get_recommendations_by_features(
+        self, genres=None, themes=None, demographics=None, num_recommendations=10
+    ):
         """Get anime recommendations based on specific features"""
         # Create a filter string based on provided features
         filter_string = ""
@@ -85,59 +104,66 @@ class AnimeRecommender:
             filter_string += " ".join(themes) + " "
         if demographics:
             filter_string += " ".join(demographics) + " "
-        
+
         if not filter_string.strip():
             # If no features are provided, return top-rated anime
             print("No features provided. Returning top-rated anime.")
-            top_rated = self.df.sort_values(by='rating', ascending=False).head(num_recommendations)
-            recommendations = top_rated[['title', 'genres', 'themes', 'demographics']].copy()
-            recommendations['similarity_score'] = top_rated['rating']
+            top_rated = self.df.sort_values(by="rating", ascending=False).head(
+                num_recommendations
+            )
+            recommendations = top_rated[
+                ["title", "genres", "themes", "demographics"]
+            ].copy()
+            recommendations["similarity_score"] = top_rated["rating"]
             return recommendations.reset_index(drop=True)
-        
+
         # Transform the filter string
         filter_vector = self.tfidf.transform([filter_string])
-        
+
         # Calculate similarity scores
         sim_scores = cosine_similarity(filter_vector, self.tfidf_matrix).flatten()
-        
+
         # Get indices of top recommendations
         top_indices = sim_scores.argsort()[::-1][:num_recommendations]
         top_scores = sim_scores[top_indices]
-        
+
         # Return recommendations
-        recommendations = self.df[['title', 'genres', 'themes', 'demographics']].iloc[top_indices].copy()
-        recommendations['similarity_score'] = top_scores
-        
+        recommendations = (
+            self.df[["title", "genres", "themes", "demographics"]]
+            .iloc[top_indices]
+            .copy()
+        )
+        recommendations["similarity_score"] = top_scores
+
         # Replace any NaN values with empty strings
-        recommendations = recommendations.fillna('')
-        
+        recommendations = recommendations.fillna("")
+
         return recommendations.reset_index(drop=True)
+
 
 def main():
     # Initialize the recommender system
     recommender = AnimeRecommender()
-    
+
     # Example usage
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("ANIME RECOMMENDATION SYSTEM")
-    print("="*50)
-    
+    print("=" * 50)
+
     # Get recommendations for a specific anime
     print("\nRecommendations for 'Cowboy Bebop':")
-    recommendations = recommender.get_recommendations('Cowboy Bebop', 5)
+    recommendations = recommender.get_recommendations("Cowboy Bebop", 5)
     if not recommendations.empty:
         for i, row in recommendations.iterrows():
             print(f"{i+1}. {row['title']}")
             print(f"   Genres: {row['genres']}")
             print(f"   Similarity Score: {row['similarity_score']:.4f}")
             print()
-    
+
     # Get recommendations based on features
     print("\nRecommendations for 'Action' anime with 'Space' theme:")
     recommendations = recommender.get_recommendations_by_features(
-        genres=['action'], 
-        themes=['space'], 
-        num_recommendations=5
+        genres=["action"], themes=["space"], num_recommendations=5
     )
     if not recommendations.empty:
         for i, row in recommendations.iterrows():
@@ -146,6 +172,7 @@ def main():
             print(f"   Themes: {row['themes']}")
             print(f"   Similarity Score: {row['similarity_score']:.4f}")
             print()
+
 
 if __name__ == "__main__":
     main()
