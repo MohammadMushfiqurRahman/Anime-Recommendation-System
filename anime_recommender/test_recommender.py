@@ -26,8 +26,8 @@ class TestAnimeRecommender(unittest.TestCase):
         recommendations = self.recommender.get_recommendations(
             "NonExistentAnime", 5
         )
-        self.assertIsInstance(recommendations, pd.DataFrame)
-        self.assertTrue(recommendations.empty)
+        self.assertIsInstance(recommendations, dict)
+        self.assertIn("message", recommendations)
 
     def test_get_recommendations_by_features(self):
         """Test getting recommendations by features."""

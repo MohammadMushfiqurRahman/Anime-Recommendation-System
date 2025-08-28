@@ -88,9 +88,5 @@ if __name__ == "__main__":
     df_processed = preprocess_anime_data()
 
     # Save processed data
-    df_processed.to_csv(
-        "anime_recommender/processed_anime_data.csv",
-        index=False,
-        encoding="utf-8",
-    )
-    print("Processed data saved to anime_recommender/processed_anime_data.csv")
+    df_processed.to_feather("anime_recommender/processed_anime_data.feather")
+    print("Processed data saved to anime_recommender/processed_anime_data.feather")

@@ -7,10 +7,10 @@ warnings.filterwarnings("ignore")
 
 
 class AnimeRecommender:
-    def __init__(self, data_path="anime_recommender/processed_anime_data.csv"):
+    def __init__(self, data_path="anime_recommender/processed_anime_data.feather"):
         """Initialize the recommender system with processed data"""
         print("Loading processed data...")
-        self.df = pd.read_csv(data_path)
+        self.df = pd.read_feather(data_path)
         print(f"Loaded {len(self.df)} anime entries")
 
         # Create indices for fast lookup
