@@ -21,7 +21,9 @@ class AnimeRecommender:
         # Initialize TF-IDF vectorizer
         print("Initializing TF-IDF vectorizer...")
         self.tfidf = TfidfVectorizer(stop_words="english", max_features=10000)
-        self.tfidf_matrix = self.tfidf.fit_transform(self.df["combined_features"])
+        self.tfidf_matrix = self.tfidf.fit_transform(
+            self.df["combined_features"]
+        )
         print("Recommender system initialized!")
 
     def get_recommendations(self, title, num_recommendations=10):
@@ -41,7 +43,9 @@ class AnimeRecommender:
                     "suggestions": similar_titles[:5],
                 }
             else:
-                return {"message": f"Anime '{title}' not found in the dataset."}
+                return {
+                    "message": f"Anime '{title}' not found in the dataset."
+                }
 
         # Get the index of the anime that matches the title
         idx = self.indices[title]
@@ -55,16 +59,27 @@ class AnimeRecommender:
         sim_scores_indices = sim_scores.argsort()[::-1]
 
         # Get the scores of the most similar anime (excluding the anime itself)
-        sim_scores_indices = sim_scores_indices[1 : num_recommendations + 1]
+        sim_scores_indices = sim_scores_indices[1:num_recommendations + 1]
         sim_scores = sim_scores[sim_scores_indices]
 
         # Get the anime indices
         anime_indices = sim_scores_indices
 
         # Return the top most similar anime
-        recommendations = self.df[
-            ["title", "genres", "themes", "demographics", "synopsis", "rating"]
-        ].iloc[anime_indices].copy()
+        recommendations = (
+            self.df[
+                [
+                    "title",
+                    "genres",
+                    "themes",
+                    "demographics",
+                    "synopsis",
+                    "rating",
+                ]
+            ]
+            .iloc[anime_indices]
+            .copy()
+        )
         recommendations["similarity_score"] = sim_scores
 
         # Replace any NaN values with empty strings
@@ -93,7 +108,11 @@ class AnimeRecommender:
         return recommendation.reset_index(drop=True)
 
     def get_recommendations_by_features(
-        self, genres=None, themes=None, demographics=None, num_recommendations=10
+        self,
+        genres=None,
+        themes=None,
+        demographics=None,
+        num_recommendations=10,
     ):
         """Get anime recommendations based on specific features"""
         # Create a filter string based on provided features
@@ -121,16 +140,20 @@ class AnimeRecommender:
         filter_vector = self.tfidf.transform([filter_string])
 
         # Calculate similarity scores
-        sim_scores = cosine_similarity(filter_vector, self.tfidf_matrix).flatten()
+        sim_scores = cosine_similarity(
+            filter_vector, self.tfidf_matrix
+        ).flatten()
 
         # Get indices of top recommendations
         top_indices = sim_scores.argsort()[::-1][:num_recommendations]
         top_scores = sim_scores[top_indices]
 
         # Return recommendations
-        recommendations = self.df[
-            ["title", "genres", "themes", "demographics"]
-        ].iloc[top_indices].copy()
+        recommendations = (
+            self.df[["title", "genres", "themes", "demographics"]]
+            .iloc[top_indices]
+            .copy()
+        )
         recommendations["similarity_score"] = top_scores
 
         # Replace any NaN values with empty strings

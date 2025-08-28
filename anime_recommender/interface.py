@@ -7,7 +7,7 @@ def main():
     print("ANIME RECOMMENDATION SYSTEM")
     print("=" * 60)
     print("Welcome to the Anime Recommendation System!")
-    print("This system will help you discover new anime based on your preferences.")
+    "This system will help you discover new anime based on your preferences."
 
     # Initialize the recommender system
     print("\nInitializing recommendation system...")
@@ -55,7 +55,9 @@ def get_anime_recommendations(recommender):
         print("No input provided.")
         return
 
-    num_recs = input("How many recommendations would you like? (default: 10): ").strip()
+    num_recs = input(
+        "How many recommendations would you like? (default: 10): "
+    ).strip()
     try:
         num_recs = int(num_recs) if num_recs else 10
     except ValueError:
@@ -98,7 +100,9 @@ def get_genre_recommendations(recommender):
 
     genres = [genre.strip().lower() for genre in genres_input.split(",")]
 
-    num_recs = input("How many recommendations would you like? (default: 10): ").strip()
+    num_recs = input(
+        "How many recommendations would you like? (default: 10): "
+    ).strip()
     try:
         num_recs = int(num_recs) if num_recs else 10
     except ValueError:
@@ -143,7 +147,9 @@ def get_theme_recommendations(recommender):
 
     themes = [theme.strip().lower() for theme in themes_input.split(",")]
 
-    num_recs = input("How many recommendations would you like? (default: 10): ").strip()
+    num_recs = input(
+        "How many recommendations would you like? (default: 10): "
+    ).strip()
     try:
         num_recs = int(num_recs) if num_recs else 10
     except ValueError:
@@ -186,7 +192,9 @@ def get_demographic_recommendations(recommender):
         print("No demographic provided.")
         return
 
-    num_recs = input("How many recommendations would you like? (default: 10): ").strip()
+    num_recs = input(
+        "How many recommendations would you like? (default: 10): "
+    ).strip()
     try:
         num_recs = int(num_recs) if num_recs else 10
     except ValueError:
@@ -245,7 +253,9 @@ def get_feature_recommendations(recommender):
         print("No features provided.")
         return
 
-    num_recs = input("How many recommendations would you like? (default: 10): ").strip()
+    num_recs = input(
+        "How many recommendations would you like? (default: 10): "
+    ).strip()
     try:
         num_recs = int(num_recs) if num_recs else 10
     except ValueError:
