@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 from recommender import AnimeRecommender
+from collaborative_recommender import CollaborativeRecommender
 
 app = Flask(__name__)
 
-# Initialize the recommender system
+# Initialize the recommender systems
 recommender = AnimeRecommender()
+collaborative_recommender = CollaborativeRecommender()
 
 
 @app.route("/")
@@ -116,7 +118,18 @@ def surprise():
         return jsonify({"error": str(e)}), 500
 
 
-def anime_list():
+@app.route("/collaborative-recommendations/<int:user_id>")
+def collaborative_recommendations(user_id):
+    """API endpoint for getting collaborative filtering recommendations"""
+    try:
+        recommendations = collaborative_recommender.get_recommendations(user_id)
+        rec_list = recommendations.to_dict('records')
+        return jsonify({"recommendations": rec_list})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def anime__list():
     """API endpoint for getting a list of all anime titles"""
     try:
         # Get unique anime titles from the dataset
