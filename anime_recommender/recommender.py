@@ -2,6 +2,8 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import warnings
+import os
+from annoy import AnnoyIndex
 
 warnings.filterwarnings("ignore")
 
@@ -24,7 +26,31 @@ class AnimeRecommender:
         self.tfidf_matrix = self.tfidf.fit_transform(
             self.df["combined_features"]
         )
+
+        # Initialize Annoy index
+        self.annoy_index = None
+        self.build_annoy_index()
+
         print("Recommender system initialized!")
+
+    def build_annoy_index(self, num_trees=50):
+        """Build or load the Annoy index for faster similarity search"""
+        index_path = "anime_recommender/anime_annoy_index.ann"
+        vector_length = self.tfidf_matrix.shape[1]
+
+        if os.path.exists(index_path):
+            print("Loading existing Annoy index...")
+            self.annoy_index = AnnoyIndex(vector_length, "angular")
+            self.annoy_index.load(index_path)
+            print("Annoy index loaded.")
+        else:
+            print("Building Annoy index...")
+            self.annoy_index = AnnoyIndex(vector_length, "angular")
+            for i, vector in enumerate(self.tfidf_matrix):
+                self.annoy_index.add_item(i, vector.toarray()[0])
+            self.annoy_index.build(num_trees)
+            self.annoy_index.save(index_path)
+            print(f"Annoy index built and saved to {index_path}")
 
     def get_recommendations(self, title, num_recommendations=10):
         """Get anime recommendations based on title"""
@@ -50,20 +76,16 @@ class AnimeRecommender:
         # Get the index of the anime that matches the title
         idx = self.indices[title]
 
-        # Get the pairwise similarity scores of all anime with that anime
+        # Get nearest neighbors from Annoy index
+        anime_indices = self.annoy_index.get_nns_by_item(
+            idx, num_recommendations + 1
+        )[1:]
+
+        # Get similarity scores for the recommended items
         sim_scores = cosine_similarity(
-            self.tfidf_matrix[idx], self.tfidf_matrix
+            self.tfidf_matrix[idx], self.tfidf_matrix[anime_indices]
         ).flatten()
 
-        # Sort the anime based on the similarity scores
-        sim_scores_indices = sim_scores.argsort()[::-1]
-
-        # Get the scores of the most similar anime (excluding the anime itself)
-        sim_scores_indices = sim_scores_indices[1:num_recommendations + 1]
-        sim_scores = sim_scores[sim_scores_indices]
-
-        # Get the anime indices
-        anime_indices = sim_scores_indices
 
         # Return the top most similar anime
         recommendations = (
